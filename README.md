@@ -3,7 +3,7 @@
 rest
 ====
 
-** Run test : phpunit src/AppBundle/Tests
+** Run test : php phpunit.phar src/AppBundle
 
 ** Log File : var/logs/err_log.log
 
