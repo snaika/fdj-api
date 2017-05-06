@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Game</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ game.id }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ game.title }}</td>
+            </tr>
+            <tr>
+                <th>Img</th>
+                <td>{{ game.img }}</td>
+            </tr>
+            <tr>
+                <th>Href</th>
+                <td>{{ game.href }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{% if game.status %}Yes{% else %}No{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('game_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a href="{{ path('game_edit', { 'id': game.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}
