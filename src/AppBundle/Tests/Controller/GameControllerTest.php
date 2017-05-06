@@ -6,50 +6,94 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class GameControllerTest extends WebTestCase
 {
-    /*
+
     public function testCompleteScenario()
     {
+        $i = random_int(0, 999);
+
         // Create a new client to browse the application
         $client = static::createClient();
 
+        // Get all games
+        $crawler = $client->request('GET', '/game');
+        $this->assertEquals(200, $client->getResponse()->getStatusCode(), "Unexpected HTTP status code for GET /game");
+
         // Create a new entry in the database
-        $crawler = $client->request('GET', '/game/');
-        $this->assertEquals(200, $client->getResponse()->getStatusCode(), "Unexpected HTTP status code for GET /game/");
-        $crawler = $client->click($crawler->selectLink('Create a new entry')->link());
+        $client->request(
+            'POST',
+            '/game',
+            array(),
+            array(),
+            array('CONTENT_TYPE' => 'application/json'),
+            '{
+                "title": "test'. $i.'",
+                "IMG": "test.jpg",
+                "HREF": "https://www.fdj.fr/jeux/test",
+                "status" : 0
+                }'
+        );
+        $this->assertEquals(201, $client->getResponse()->getStatusCode(), "Unexpected HTTP status code for POST /game");
+        $id = $client->getResponse()->isSuccessful() ? json_decode($client->getResponse()->getContent())->id : 1;
 
-        // Fill in the form and submit it
-        $form = $crawler->selectButton('Create')->form(array(
-            'appbundle_game[field_name]'  => 'Test',
-            // ... other fields to fill
-        ));
+        // Create an existing entry in the database
+        $client->request(
+            'POST',
+            '/game',
+            array(),
+            array(),
+            array('CONTENT_TYPE' => 'application/json'),
+            '{
+                "title": "test'. $i.'",
+                "IMG": "test.jpg",
+                "HREF": "https://www.fdj.fr/jeux/test",
+                "status" : 0
+                }'
+        );
+        $this->assertEquals(400, $client->getResponse()->getStatusCode(), "Unexpected HTTP status code repost same data POST /game");
 
-        $client->submit($form);
-        $crawler = $client->followRedirect();
+        // Get a game from db
+        $client->request(
+            'GET',
+            '/game/'.$id
+        );
+        $this->assertEquals(200, $client->getResponse()->getStatusCode(), "Unexpected HTTP status code for GET /game$id");
+        $rawGame =  $client->getResponse()->isSuccessful() ? $client->getResponse()->getContent() : "{}";
 
-        // Check data in the show view
-        $this->assertGreaterThan(0, $crawler->filter('td:contains("Test")')->count(), 'Missing element td:contains("Test")');
+        // Update an existing entry in the database
+        $client->request(
+            'PUT',
+            '/game/'.$id,
+            array(),
+            array(),
+            array('CONTENT_TYPE' => 'application/json'),
+            '{
+                "title": "test'. $i.' test",
+                "IMG": "test.jpg",
+                "HREF": "https://www.fdj.fr/jeux/test",
+                "status" : 1
+                }'
+        );
+        $this->assertEquals(200, $client->getResponse()->getStatusCode(), "Unexpected HTTP status code for PUT /game$id");
 
-        // Edit the entity
-        $crawler = $client->click($crawler->selectLink('Edit')->link());
+        // Check if game is persisted
+        $this->assertNotRegExp('/'.$rawGame.'/', $client->getResponse()->getContent());
 
-        $form = $crawler->selectButton('Update')->form(array(
-            'appbundle_game[field_name]'  => 'Foo',
-            // ... other fields to fill
-        ));
+        // Delete an existing entry in the database
+        $client->request(
+            'DELETE',
+            '/game/'.$id
+        );
+        $this->assertEquals(204, $client->getResponse()->getStatusCode(), "Unexpected HTTP status code on DELETE /game$id");
 
-        $client->submit($form);
-        $crawler = $client->followRedirect();
+        // Get a non existing game from db
+        $client->request(
+            'GET',
+            '/game/'.$id
+        );
+        $this->assertEquals(404, $client->getResponse()->getStatusCode(), "Unexpected HTTP status code for GET /game$id");
 
-        // Check the element contains an attribute with value equals "Foo"
-        $this->assertGreaterThan(0, $crawler->filter('[value="Foo"]')->count(), 'Missing element [value="Foo"]');
 
-        // Delete the entity
-        $client->submit($crawler->selectButton('Delete')->form());
-        $crawler = $client->followRedirect();
-
-        // Check the entity has been delete on the list
-        $this->assertNotRegExp('/Foo/', $client->getResponse()->getContent());
     }
 
-    */
+
 }

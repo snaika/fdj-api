@@ -65,6 +65,16 @@ class GameController extends Controller
     /**
      * Creates a new game entity.
      *
+     * ** Example
+     *  {
+     *  "title": "test",
+     *  "img": "test.jpg",
+     *  "href": "https://www.fdj.fr/jeux/test",
+     *  "status" : 0
+     *  }
+     *
+     * ```
+     *
      * @Rest\View(statusCode=Response::HTTP_CREATED)
      * @Rest\Post("", name="game_create")
      * @ParamConverter("game", converter="fos_rest.request_body")
@@ -98,6 +108,16 @@ class GameController extends Controller
     /**
      * Edit an existing game entity.
      *
+     * ** Example
+     *  {
+     *  "title": "test",
+     *  "IMG": "test.jpg",
+     *  "HREF": "https://www.fdj.fr/jeux/test",
+     *  "status" : 0
+     *  }
+     *
+     * ```
+     *
      * @Rest\Put("/{id}", requirements={"id": "\d+"})
      * @Rest\View()
      * @ParamConverter("game", class="AppBundle:Game")
@@ -116,8 +136,8 @@ class GameController extends Controller
         $game =  $serializer->denormalize($request->request->all(), '\AppBundle\Entity\Game', null, array('object_to_populate' => $game));
         $sav = $em->getRepository('AppBundle:Game')->findByTitle($game->getTitle());
         if ($sav){
-            $msg = "This title already exist";
-            $$this->get('logger')->err($msg);
+            $msg = "title : ".$game->getTitle().". is already used";
+            $this->get('logger')->err($msg);
             return new JsonResponse($msg, Response::HTTP_BAD_REQUEST);
         }
         if(!$game->getTitle()){
@@ -136,19 +156,18 @@ class GameController extends Controller
      * Deletes a game entity.
      *
      * @Rest\Delete("/{id}", requirements={"id": "\d+"})
-     * @Rest\View(statusCode=204)
+     * @Rest\View(statusCode=Response::HTTP_NO_CONTENT)
      * @ParamConverter("game", class="AppBundle:Game", options={"catchError"={"message"="Game not found"}})
      * @param Request $request
      * @param Game $game
-     * @return Game
+     * @return JsonResponse
      */
     public function deleteAction(Request $request, Game $game)
     {
         $em = $this->getDoctrine()->getManager();
         $em->remove($game);
         $em->flush();
-
-        return $game;
+        return new JsonResponse("Deleted successfully", Response::HTTP_NO_CONTENT);
     }
 
 }
